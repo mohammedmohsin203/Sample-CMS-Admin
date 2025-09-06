@@ -1,0 +1,54 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "@/lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// University Table
+model University {
+  id          Int          @id @default(autoincrement())
+  name        String
+  country     String
+  region      String? // e.g. South India, North India
+  latitude    Float
+  longitude   Float
+  category    Category
+  inspections Inspection[] // relation to inspections
+}
+
+// Employee Table
+model Employee {
+  id          Int          @id @default(autoincrement())
+  name        String
+  department  String? // optional extra info
+  inspections Inspection[] // relation to inspections
+}
+
+// Inspection Table (join table)
+model Inspection {
+  id           Int      @id @default(autoincrement())
+  universityId Int
+  employeeId   Int
+  inspectedAt  DateTime @default(now())
+
+  university University @relation(fields: [universityId], references: [id])
+  employee   Employee   @relation(fields: [employeeId], references: [id])
+}
+
+// Enum for category filter
+enum Category {
+  ENGINEERING
+  ARTS
+  FINANCE
+  SCIENCE
+}
