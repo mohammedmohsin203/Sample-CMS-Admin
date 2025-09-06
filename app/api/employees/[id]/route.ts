@@ -1,12 +1,14 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-type Params = { params: { id: string } };
-
+type Params = {
+    params: Promise<{ id: string }>;
+};
 // GET single employee
 export async function GET(req: Request, { params }: Params) {
+    const { id } = await params;
     const employee = await prisma.employee.findUnique({
-        where: { id: Number(params.id) },
+        where: { id: Number(id) },
         include: { inspections: true },
     });
 
@@ -20,9 +22,9 @@ export async function GET(req: Request, { params }: Params) {
 // UPDATE employee
 export async function PUT(req: Request, { params }: Params) {
     const body = await req.json();
-
+    const { id } = await params;
     const employee = await prisma.employee.update({
-        where: { id: Number(params.id) },
+        where: { id: Number(id) },
         data: {
             name: body.name,
             department: body.department,
@@ -34,8 +36,9 @@ export async function PUT(req: Request, { params }: Params) {
 
 // DELETE employee
 export async function DELETE(req: Request, { params }: Params) {
+    const { id } = await params;
     await prisma.employee.delete({
-        where: { id: Number(params.id) },
+        where: { id: Number(id) },
     });
 
     return NextResponse.json({ message: "Employee deleted" });
